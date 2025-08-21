@@ -166,14 +166,6 @@ export default function AdminPage() {
       href: '/admin/categories',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
-    },
-    {
-      title: 'System Settings',
-      description: 'Configure system preferences',
-      icon: Settings,
-      href: '/admin/settings',
-      color: 'text-gray-600',
-      bgColor: 'bg-gray-50'
     }
   ]
 
@@ -220,7 +212,7 @@ export default function AdminPage() {
       {/* Quick Actions */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {quickActions.map((action, index) => (
             <Card key={index} className="border-0 bg-background/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
               <CardContent className="p-6">
@@ -243,7 +235,7 @@ export default function AdminPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="mt-8">
         {/* Recent Posts */}
         <Card className="border-0 bg-background/50 backdrop-blur-sm">
           <CardHeader>
@@ -274,42 +266,6 @@ export default function AdminPage() {
             </div>
             <Button asChild variant="outline" className="w-full mt-4">
               <Link href="/admin/posts">View All Posts</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* System Status */}
-        <Card className="border-0 bg-background/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BarChart3 className="h-5 w-5" />
-              <span>System Status</span>
-            </CardTitle>
-            <CardDescription>
-              Current system health and performance
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Database</span>
-                <Badge variant="default">Healthy</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">API Status</span>
-                <Badge variant="default">Online</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Storage</span>
-                <Badge variant="secondary">75% Used</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Last Backup</span>
-                <Badge variant="outline">2 hours ago</Badge>
-              </div>
-            </div>
-            <Button asChild variant="outline" className="w-full mt-4">
-              <Link href="/admin/settings">System Settings</Link>
             </Button>
           </CardContent>
         </Card>

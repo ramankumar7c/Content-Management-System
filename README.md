@@ -18,13 +18,13 @@ A powerful, developer-friendly content management system built with Next.js 14, 
 - **Status Management** - Draft, Published, and Archived states
 - **SEO Optimization** - Keywords, excerpts, and meta descriptions
 - **Image Support** - Thumbnail and featured image management
+- **Real Views Counter** - Per-post views (admin views ignored), summed on dashboard
 
 ### 🎛️ Admin Panel
-- **Dashboard Overview** - System statistics and quick actions
-- **User Management** - View, edit, and manage all users
-- **Content Moderation** - Review and manage all posts
-- **Category Management** - Create and organize content categories
-- **System Monitoring** - Health checks and performance metrics
+- **Dashboard Overview** - Quick stats and actions
+- **User Management** - View, filter, and update roles
+- **Content Management** - Moderate and manage posts
+- **Category Management** - Create and organize categories
 
 ### 🌐 Public Blog
 - **Responsive Design** - Mobile-first, modern UI
@@ -172,6 +172,7 @@ model Post {
   categoryId String?    @db.ObjectId
   authorId   String     @db.ObjectId
   status     PostStatus @default(DRAFT)
+  views      Int        @default(0)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   
@@ -213,6 +214,9 @@ model Category {
 - `GET /api/v1/categories` - Get all categories
 - `POST /api/v1/categories` - Create category (Admin only)
 
+### Search
+- `GET /api/v1/search?q=term&page=1&limit=10` - Full-text search across posts
+
 ## 🎨 UI Components
 
 The project uses [shadcn/ui](https://ui.shadcn.com/) components built on top of Radix UI and Tailwind CSS:
@@ -241,19 +245,6 @@ The project uses [shadcn/ui](https://ui.shadcn.com/) components built on top of 
    - Admins can manage all users and content
    - Protected routes based on user roles
 
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy automatically on push
-
-### Other Platforms
-- **Netlify** - Static site generation
-- **Railway** - Full-stack deployment
-- **DigitalOcean** - Custom server setup
-
 ## 🛠️ Development
 
 ### Available Scripts
@@ -263,6 +254,7 @@ npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript compiler
+postinstall          # Prisma generate (runs automatically on install)
 ```
 
 ### Code Quality

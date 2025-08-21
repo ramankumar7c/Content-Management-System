@@ -44,7 +44,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [roleFilter, setRoleFilter] = useState('')
+  const [roleFilter, setRoleFilter] = useState('ALL')
   const [editingUser, setEditingUser] = useState<string | null>(null)
   const [updatingRole, setUpdatingRole] = useState<string | null>(null)
 
@@ -132,7 +132,7 @@ export default function AdminUsersPage() {
                          user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          user.username?.toLowerCase().includes(searchQuery.toLowerCase())
     
-    const matchesRole = !roleFilter || user.role === roleFilter
+    const matchesRole = roleFilter === 'ALL' || user.role === roleFilter
     
     return matchesSearch && matchesRole
   })
@@ -265,7 +265,7 @@ export default function AdminUsersPage() {
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Roles</SelectItem>
+                <SelectItem value="ALL">All Roles</SelectItem>
                 <SelectItem value="USER">Users</SelectItem>
                 <SelectItem value="ADMIN">Admins</SelectItem>
               </SelectContent>
