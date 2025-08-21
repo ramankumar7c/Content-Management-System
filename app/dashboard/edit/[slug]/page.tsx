@@ -50,55 +50,55 @@ export default function EditPostPage() {
       return
     }
 
+    const fetchPost = async (slug: string) => {
+      try {
+        const response = await fetch(`/api/v1/posts/${slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          const fetchedPost = data.post
+
+          // Check if user owns the post or is admin
+          if (fetchedPost.authorId !== session?.user?.id && session?.user?.role !== 'ADMIN') {
+            router.push('/dashboard')
+            return
+          }
+
+          setPost(fetchedPost)
+          setFormData({
+            title: fetchedPost.title,
+            content: fetchedPost.content,
+            excerpt: fetchedPost.excerpt || '',
+            categoryId: fetchedPost.categoryId || '',
+            status: fetchedPost.status,
+            thumbnail: fetchedPost.thumbnail || '',
+            keywords: fetchedPost.keywords.join(', ')
+          })
+        } else {
+          setError('Post not found')
+        }
+      } catch (error) {
+        console.error('Error fetching post:', error)
+        setError('Failed to load post')
+      }
+    }
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/v1/categories')
+        if (response.ok) {
+          const data = await response.json()
+          setCategories(data.categories)
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+
     if (params.slug) {
       fetchPost(params.slug as string)
       fetchCategories()
     }
-  }, [status, router, params.slug])
-
-  const fetchPost = async (slug: string) => {
-    try {
-      const response = await fetch(`/api/v1/posts/${slug}`)
-      if (response.ok) {
-        const data = await response.json()
-        const fetchedPost = data.post
-        
-        // Check if user owns the post or is admin
-        if (fetchedPost.authorId !== session?.user?.id && session?.user?.role !== 'ADMIN') {
-          router.push('/dashboard')
-          return
-        }
-
-        setPost(fetchedPost)
-        setFormData({
-          title: fetchedPost.title,
-          content: fetchedPost.content,
-          excerpt: fetchedPost.excerpt || '',
-          categoryId: fetchedPost.categoryId || '',
-          status: fetchedPost.status,
-          thumbnail: fetchedPost.thumbnail || '',
-          keywords: fetchedPost.keywords.join(', ')
-        })
-      } else {
-        setError('Post not found')
-      }
-    } catch (error) {
-      console.error('Error fetching post:', error)
-      setError('Failed to load post')
-    }
-  }
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('/api/v1/categories')
-      if (response.ok) {
-        const data = await response.json()
-        setCategories(data.categories)
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-    }
-  }
+  }, [status, router, params.slug, session?.user?.id, session?.user?.role])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
