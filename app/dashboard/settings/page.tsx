@@ -40,7 +40,7 @@ export default function DashboardSettings() {
       setProfileForm({
         name: session.user.name || '',
         email: session.user.email || '',
-        username: session.user.username || ''
+        username: ''
       })
     }
   }, [session, status, router])
@@ -273,15 +273,11 @@ export default function DashboardSettings() {
             </div>
             <div>
               <Label className="text-sm font-medium text-gray-500">Member Since</Label>
-              <p className="text-sm text-gray-900 mt-1">
-                {session.user.createdAt ? new Date(session.user.createdAt).toLocaleDateString() : 'N/A'}
-              </p>
+              <p className="text-sm text-gray-900 mt-1">N/A</p>
             </div>
             <div>
               <Label className="text-sm font-medium text-gray-500">Last Updated</Label>
-              <p className="text-sm text-gray-900 mt-1">
-                {session.user.updatedAt ? new Date(session.user.updatedAt).toLocaleDateString() : 'N/A'}
-              </p>
+              <p className="text-sm text-gray-900 mt-1">N/A</p>
             </div>
           </div>
         </CardContent>

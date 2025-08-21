@@ -55,16 +55,36 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: 'jwt' },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      // On first sign-in, merge DB user fields
       if (user) {
-        token.role = user.role
+        token.role = (user as any).role
+        // Fetch extra fields from DB
+        const dbUser = await prisma.user.findUnique({ where: { id: (user as any).id } })
+        if (dbUser) {
+          token.username = dbUser.username || null
+          token.createdAt = dbUser.createdAt?.toISOString()
+          token.updatedAt = dbUser.updatedAt?.toISOString()
+        }
+      } else if (token?.sub) {
+        // For subsequent requests, ensure token has latest info
+        const dbUser = await prisma.user.findUnique({ where: { id: token.sub } })
+        if (dbUser) {
+          token.role = dbUser.role
+          token.username = dbUser.username || null
+          token.createdAt = dbUser.createdAt?.toISOString()
+          token.updatedAt = dbUser.updatedAt?.toISOString()
+        }
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.sub!
-        session.user.role = token.role as string
+        session.user.role = (token.role as string) || 'USER'
+        session.user.username = (token.username as string | null) || null
+        session.user.createdAt = (token.createdAt as string | undefined)
+        session.user.updatedAt = (token.updatedAt as string | undefined)
       }
       return session
     },
