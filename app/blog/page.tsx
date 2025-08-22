@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,21 +25,12 @@ export default function BlogPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalPosts, setTotalPosts] = useState(0)
 
-  useEffect(() => {
-    fetchCategories()
-    fetchPosts()
-  }, [])
-
-  useEffect(() => {
-    fetchPosts()
-  }, [searchQuery, selectedCategory, currentPage])
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch('/api/v1/categories')
       if (response.ok) {
@@ -48,9 +40,9 @@ export default function BlogPage() {
     } catch (error) {
       console.error('Error fetching categories:', error)
     }
-  }
+  }, [])
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -63,7 +55,7 @@ export default function BlogPage() {
         params.append('search', searchQuery)
       }
 
-      if (selectedCategory) {
+      if (selectedCategory && selectedCategory !== 'all') {
         params.append('category', selectedCategory)
       }
 
@@ -71,15 +63,24 @@ export default function BlogPage() {
       if (response.ok) {
         const data = await response.json()
         setPosts(data.posts)
-        setTotalPages(data.pagination.pages)
         setTotalPosts(data.pagination.total)
+        setTotalPages(data.pagination.pages)
       }
     } catch (error) {
       console.error('Error fetching posts:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, searchQuery, selectedCategory])
+
+  useEffect(() => {
+    fetchCategories()
+    fetchPosts()
+  }, [fetchCategories, fetchPosts])
+
+  useEffect(() => {
+    fetchPosts()
+  }, [fetchPosts])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -151,7 +152,7 @@ export default function BlogPage() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.slug}>
                     {category.title}
@@ -165,7 +166,7 @@ export default function BlogPage() {
               size="sm"
               onClick={() => {
                 setSearchQuery('')
-                setSelectedCategory('')
+                setSelectedCategory('all')
                 setCurrentPage(1)
               }}
             >
@@ -179,7 +180,7 @@ export default function BlogPage() {
           <div className="text-center mb-8">
             <p className="text-muted-foreground">
               Showing {posts.length} of {totalPosts} posts
-              {selectedCategory && ` in ${categories.find(c => c.slug === selectedCategory)?.title}`}
+              {selectedCategory !== 'all' && ` in ${categories.find(c => c.slug === selectedCategory)?.title}`}
               {searchQuery && ` matching "${searchQuery}"`}
             </p>
           </div>
@@ -210,17 +211,17 @@ export default function BlogPage() {
               </div>
               <h3 className="text-lg font-semibold mb-2">No posts found</h3>
               <p className="text-muted-foreground mb-4">
-                {searchQuery || selectedCategory 
+                {searchQuery || selectedCategory !== 'all'
                   ? 'Try adjusting your search or filters'
                   : 'Check back later for new content'
                 }
               </p>
-              {(searchQuery || selectedCategory) && (
+              {(searchQuery || selectedCategory !== 'all') && (
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSearchQuery('')
-                    setSelectedCategory('')
+                    setSelectedCategory('all')
                     setCurrentPage(1)
                   }}
                 >
@@ -236,10 +237,11 @@ export default function BlogPage() {
                 <CardContent className="p-0">
                   {post.thumbnail && (
                     <div className="relative h-48 overflow-hidden rounded-t-lg">
-                      <img
+                      <Image
                         src={post.thumbnail}
                         alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   )}
